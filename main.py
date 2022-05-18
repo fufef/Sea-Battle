@@ -1,6 +1,7 @@
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 from game_preparing import GamePreparing
+from game import Game
 from menu import Menu
 
 
@@ -18,6 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.stacked_widget.addWidget(Menu(self))
         self.stacked_widget.addWidget(GamePreparing(self))
+        self.stacked_widget.addWidget(Game(self))
 
     def change_window(self, number):
         try:

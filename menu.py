@@ -9,11 +9,11 @@ class Menu(QtWidgets.QFrame):
         super().__init__()
         self.main_window = main_window
         self.setObjectName("MenuWindow")
-        self.setStyleSheet("#MenuWindow{border-image:url(resources/background_menu.png)}")
+        #self.setStyleSheet("#MenuWindow{border-image:url(resources/background_menu.png)}")
 
         #QFontDatabase.addApplicationFont("resources/BNKGOTHM.TTF")
-        font = QtGui.QFont()
-        style = "background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255);"
+        font = QtGui.QFont("Times", 32)
+        style = "background-color: rgba(255, 255, 255, 0); color: rgb(0, 0, 0);"
 
         self.start_btn = QtWidgets.QPushButton(self)
         self.start_btn.setGeometry(QtCore.QRect(450, 350, 300, 100))
