@@ -39,6 +39,6 @@ class ShipButton(QtWidgets.QPushButton):
             max_x -= dt
         else:
             max_y -= dt
-        if 550 <= location.x() <= max_x and 60 <= location.y() <= max_y:
+        if 550 <= location.x() <= max_x + 25 and 60 <= location.y() <= max_y + 25:
             return True
         return False
