@@ -97,6 +97,7 @@ class GamePreparing(QtWidgets.QFrame):
             if event.type() == QtCore.QEvent.MouseButtonPress and event.button() == QtCore.Qt.RightButton:
                 if source.check_pos(source.pos(), 1 - source.ship.orientation):
                     source.transform()
+                    self.user_field.update_field(source.ship.cell_location, source.ship)
             elif event.type() == QtCore.QEvent.MouseMove and self.movingButton:
                 self.movingButton.move(source.pos() + event.pos() - self.startPos)
             elif event.type() == QtCore.QEvent.MouseButtonRelease and self.movingButton:
@@ -104,6 +105,8 @@ class GamePreparing(QtWidgets.QFrame):
                 self.movingButton.ship.location = self.movingButton.pos()
                 self.movingButton.ship_alignment()
                 self.user_field.update_field(self.movingButton.ship.cell_location, self.movingButton.ship)
+                #for i in self.user_field.field:
+                 #   print(*i)
                 self.movingButton = None
         return super().eventFilter(source, event)
 

@@ -2,14 +2,14 @@ from PyQt5 import QtWidgets, QtCore
 
 
 class Ship:
-    def __init__(self, size: int, location: (int, int)):
+    def __init__(self, size: int, location: (int, int), orientation=0):
         self.size = size
         self.location = location
-        self.orientation = 0
+        self.orientation = orientation
         self.cell_location = (-1, -1)
-        self.status = 0
+        self.status = 'live'
         self.button = None
-        self.cell_status = [0 for i in range(self.size)]
+        self.cell_status = ['live' for i in range(self.size)]
 
 
 class ShipButton(QtWidgets.QPushButton):
@@ -33,7 +33,7 @@ class ShipButton(QtWidgets.QPushButton):
     def check_pos(self, location: QtCore.QPoint, orientation: int):
         max_x = 1000
         max_y = 510
-        dt = (self.ship.size - 1) * 45
+        dt = self.ship.size * 45
         if orientation == 0:
             max_x -= dt
         else:
