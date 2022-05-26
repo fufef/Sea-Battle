@@ -1,10 +1,6 @@
 import random
-
-from PyQt5 import QtWidgets, QtCore, QtGui
-#import partie as pa
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QRect, Qt
 from ship import *
 from field import Field
 from random import randint
@@ -24,7 +20,7 @@ class Game(QtWidgets.QFrame):
         self.backMenu_btn.clicked.connect(self.back_menu_action)
 
         self.setObjectName("GameWindow")
-        #self.setStyleSheet("#GameWindow{border-image:url(resources/background.png)}")
+        # self.setStyleSheet("#GameWindow{border-image:url(resources/background.png)}")
         self.user_field = user_field
         self.enemy_field = Field(10)
 
@@ -60,12 +56,6 @@ class Game(QtWidgets.QFrame):
                 square.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 square.setStyleSheet('background-color: #FCFCEE; border: 1px solid black;')
                 layout.addWidget(square, row, col)
-        # nums = QtWidgets.QLabel("1\n2\n3\n4\n5\n6\n7\n8\n9\n10", self)
-        # nums.setGeometry(QtCore.QRect(500, 65, 300, 500))
-        # nums.setFont(QtGui.QFont('Times', 25))
-        # lets = QtWidgets.QLabel("a  b  c  d  e  f  g  h  i  j", self)
-        # lets.setGeometry(QtCore.QRect(565, 10, 500, 50))
-        # lets.setFont(QtGui.QFont('Times', 26))
 
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.MouseButtonPress and event.button() == QtCore.Qt.LeftButton \
@@ -134,7 +124,7 @@ class Game(QtWidgets.QFrame):
 
         c = Ship(le, r, o)
         c.cell_location = r
-        field.ships.add(c)
+        field.ships[c] = (c.location, c.orientation)
         for i in cells:
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
@@ -155,6 +145,7 @@ class Game(QtWidgets.QFrame):
         return False
 
     def enemy_move(self):
+        cell = (-1, -1)
         if self.is_all_at_sea:
             cell = (randint(0, 9), randint(0, 9))
             while self.user_field.field[cell[0]][cell[1]][1]:
@@ -165,7 +156,6 @@ class Game(QtWidgets.QFrame):
                 self.prev_cell = cell
                 self.is_all_at_sea = False
         else:
-            cell = (-1, -1)
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     if abs(i + j) == 1 and 0 <= self.prev_cell[0] + i < 10 and 0 <= self.prev_cell[1] + j < 10 and not \
@@ -184,6 +174,13 @@ class Game(QtWidgets.QFrame):
             pic.setPixmap(QtGui.QPixmap('resources/mimo.png'))
         else:
             pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
+            if res == 'dead':
+                for i in range(-1, 2):
+                    for j in range(-1, 2):
+                        if 0 <= cell[0] + i < 10 and 0 <= cell[1] + j < 10:
+                            self.user_field.field[cell[0] + i][cell[1] + j] = \
+                                (self.user_field.field[cell[0] + i][cell[1] + j], True)
+
         pic.setFixedSize(45, 45)
         pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
         pic.move(QtCore.QPoint(100 + 45 * cell[0], 175 + 45 * cell[1]))

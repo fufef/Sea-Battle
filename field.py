@@ -2,11 +2,20 @@ class Field:
     def __init__(self, n):
         self.size = n
         self.field = [[(None, False) for j in range(n)] for i in range(n)]
-        self.ships = set()
+        self.ships = dict()
 
     def update_field(self, location, ship):
         if 0 <= location[0] <= self.size and 0 <= location[1] <= self.size:
-            self.ships.add(ship)
+            if ship in self.ships:
+                old_start, old_orientation = self.ships[ship]
+
+                for i in range(ship.size):
+                    if old_orientation == 0:
+                        self.field[old_start[0] + i][old_start[1]] = (None, False)
+                    else:
+                        self.field[old_start[0]][old_start[1] + i] = (None, False)
+
+            self.ships[ship] = (location, ship.orientation)
             for i in range(ship.size):
                 if ship.orientation == 0:
                     self.field[location[0] + i][location[1]] = (ship, False)
@@ -20,6 +29,11 @@ class Field:
                     self.field[location[0] + i][location[1]] = (ship, False)
                 else:
                     self.field[location[0]][location[1] + i] = (ship, False)
+
+    def clear_field(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                self.field[i][j] = (None, False)
 
     def shoot(self, location):
         cell = self.field[location[0]][location[1]][0]

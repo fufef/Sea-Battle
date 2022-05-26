@@ -1,7 +1,5 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QRect, Qt
 from ship import *
 from field import Field
 from game import Game
@@ -26,11 +24,10 @@ class GamePreparing(QtWidgets.QFrame):
         self.start_btn.setFont(QtGui.QFont('Times', 22))
         self.start_btn.clicked.connect(self.start_game_action)
 
-        self.clear_btn = QtWidgets.QPushButton(self)
-        self.clear_btn.setGeometry(QtCore.QRect(640, 600, 100, 50))
-        self.clear_btn.setObjectName("clear_btn")
-        self.clear_btn.setFont(QtGui.QFont('Times', 22))
-        # self.clear_btn.clicked.connect(self.start_game_action)
+        # self.clear_btn = QtWidgets.QPushButton(self)
+        # self.clear_btn.setGeometry(QtCore.QRect(640, 600, 100, 50))
+        # self.clear_btn.setObjectName("clear_btn")
+        # self.clear_btn.setFont(QtGui.QFont('Times', 22))
 
         ships = QtWidgets.QLabel("ships:", self)
         ships.setGeometry(QtCore.QRect(80, 60, 100, 80))
@@ -55,7 +52,7 @@ class GamePreparing(QtWidgets.QFrame):
     def _retranslate_ui(self):
         _translate = QtCore.QCoreApplication.translate
         self.start_btn.setText(_translate("Preparing", "start"))
-        self.clear_btn.setText(_translate("Preparing", "clear"))
+        #self.clear_btn.setText(_translate("Preparing", "clear"))
 
     def draw_field(self):
         for row, rank in enumerate('1234567890'):
@@ -105,11 +102,8 @@ class GamePreparing(QtWidgets.QFrame):
                 self.movingButton.ship.location = self.movingButton.pos()
                 self.movingButton.ship_alignment()
                 self.user_field.update_field(self.movingButton.ship.cell_location, self.movingButton.ship)
-                #for i in self.user_field.field:
-                 #   print(*i)
                 self.movingButton = None
         return super().eventFilter(source, event)
-
 
     def back_menu_action(self):
         self.main_window.change_window(0)

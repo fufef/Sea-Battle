@@ -27,7 +27,8 @@ class ShipButton(QtWidgets.QPushButton):
         if self.check_pos(self.ship.location, self.ship.orientation):
             delta = self.ship.location - field_loc
             self.ship.cell_location = (delta.x() // 45, delta.y() // 45)
-            self.ship.location = field_loc + QtCore.QPoint(45 * self.ship.cell_location[0], 45 * self.ship.cell_location[1])
+            self.ship.location = field_loc + QtCore.QPoint(45 * self.ship.cell_location[0],
+                                                           45 * self.ship.cell_location[1])
             self.move(self.ship.location)
 
     def check_pos(self, location: QtCore.QPoint, orientation: int):
