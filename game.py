@@ -74,7 +74,25 @@ class Game(QtWidgets.QFrame):
 
             loc = self.get_cell_coords(startPos)
             print(loc)
-            self.enemy_field.shoot(loc)
+            res = self.enemy_field.shoot(loc)
+
+            pic = QtWidgets.QLabel(self)
+            if res == 'past':
+                pic.setPixmap(QtGui.QPixmap('resources/mimo.png'))
+            else:
+                pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
+            pic.setFixedSize(45, 45)
+            pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
+            pic.move(QtCore.QPoint(650 + 45 * loc[0], 175 + 45 * loc[1]))
+            pic.show()
+
+            if all((i.status == 'dead' for i in self.enemy_field.ships)):
+                r = QtWidgets.QFrame(self.main_window)
+                l = QtWidgets.QLabel(r)
+                l.setFont(QtGui.QFont("Times", 60))
+                l.move(QtCore.QPoint(400, 300))
+                l.setText("You win!!!")
+                self.main_window.change_window(3, r)
             self.enemy_move()
 
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
@@ -116,7 +134,7 @@ class Game(QtWidgets.QFrame):
 
         c = Ship(le, r, o)
         c.cell_location = r
-        field.ships.append(c)
+        field.ships.add(c)
         for i in cells:
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
@@ -150,7 +168,7 @@ class Game(QtWidgets.QFrame):
             cell = (-1, -1)
             for i in range(-1, 2):
                 for j in range(-1, 2):
-                    if 0 <= self.prev_cell[0] + i < 10 and 0 <= self.prev_cell[1] + j < 10 and not \
+                    if abs(i + j) == 1 and 0 <= self.prev_cell[0] + i < 10 and 0 <= self.prev_cell[1] + j < 10 and not \
                             self.user_field.field[self.prev_cell[0] + i][self.prev_cell[1] + j][1]:
                         cell = (self.prev_cell[0] + i, self.prev_cell[1] + j)
                         break
@@ -161,7 +179,22 @@ class Game(QtWidgets.QFrame):
             self.prev_cell = cell
             if res != 'injured':
                 self.is_all_at_sea = True
-
+        pic = QtWidgets.QLabel(self)
+        if res == 'past':
+            pic.setPixmap(QtGui.QPixmap('resources/mimo.png'))
+        else:
+            pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
+        pic.setFixedSize(45, 45)
+        pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
+        pic.move(QtCore.QPoint(100 + 45 * cell[0], 175 + 45 * cell[1]))
+        pic.show()
+        if all((i.status == 'dead' for i in self.user_field.ships)):
+            r = QtWidgets.QFrame(self.main_window)
+            l = QtWidgets.QLabel(r)
+            l.setFont(QtGui.QFont("Times", 60))
+            l.move(QtCore.QPoint(400, 300))
+            l.setText("You lost(((")
+            self.main_window.change_window(3, r)
 
     def back_menu_action(self):
         self.main_window.change_window(1)
