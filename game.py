@@ -44,6 +44,9 @@ class Game(QtWidgets.QFrame):
         self.fill_field(self.enemy_field)
         self.installEventFilter(self)
 
+        self.is_all_at_sea = True
+        self.prev_cell = (-1, -1)
+
         self._retranslate_ui()
 
     def _retranslate_ui(self):
@@ -72,7 +75,7 @@ class Game(QtWidgets.QFrame):
             loc = self.get_cell_coords(startPos)
             print(loc)
             self.enemy_field.shoot(loc)
-            self.enemy_move(self.user_field)
+            self.enemy_move()
 
         elif event.type() == QtCore.QEvent.MouseButtonRelease:
             pass
@@ -133,9 +136,32 @@ class Game(QtWidgets.QFrame):
             return True
         return False
 
-    def enemy_move(self, u_field):
+    def enemy_move(self):
+        if self.is_all_at_sea:
+            cell = (randint(0, 9), randint(0, 9))
+            while self.user_field.field[cell[0]][cell[1]][1]:
+                cell = (randint(0, 9), randint(0, 9))
+            print(cell)
+            res = self.user_field.shoot(cell)
+            if res == 'injured':
+                self.prev_cell = cell
+                self.is_all_at_sea = False
+        else:
+            cell = (-1, -1)
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    if 0 <= self.prev_cell[0] + i < 10 and 0 <= self.prev_cell[1] + j < 10 and not \
+                            self.user_field.field[self.prev_cell[0] + i][self.prev_cell[1] + j][1]:
+                        cell = (self.prev_cell[0] + i, self.prev_cell[1] + j)
+                        break
+                if cell == (-1, -1):
+                    continue
+            print('ха!', cell)
+            res = self.user_field.shoot(cell)
+            self.prev_cell = cell
+            if res != 'injured':
+                self.is_all_at_sea = True
 
-        pass
 
     def back_menu_action(self):
         self.main_window.change_window(1)
