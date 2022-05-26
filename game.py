@@ -20,7 +20,6 @@ class Game(QtWidgets.QFrame):
         self.backMenu_btn.clicked.connect(self.back_menu_action)
 
         self.setObjectName("GameWindow")
-        # self.setStyleSheet("#GameWindow{border-image:url(resources/background.png)}")
         self.user_field = user_field
         self.enemy_field = Field(10)
 
@@ -111,7 +110,7 @@ class Game(QtWidgets.QFrame):
             self.choose(field, s, 2)
         for i in range(4):
             self.choose(field, s, 1)
-        self.show_ships(field.ships, (100 + 450 + 100, 175))
+        #self.show_ships(field.ships, (100 + 450 + 100, 175))
         for i in field.ships:
             field.update_battlefield(i.cell_location, i)
 
