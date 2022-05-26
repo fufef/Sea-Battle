@@ -3,10 +3,12 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QRect, Qt
+from ship import *
+from field import Field
 
 
 class Game(QtWidgets.QFrame):
-    def __init__(self, main_window):
+    def __init__(self, main_window, user_field: Field):
         super().__init__()
         self.screen_size = (main_window.size().width(), main_window.size().height())
         self.main_window = main_window
@@ -20,20 +22,21 @@ class Game(QtWidgets.QFrame):
 
         self.setObjectName("GameWindow")
         #self.setStyleSheet("#GameWindow{border-image:url(resources/background.png)}")
-        #self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        #self.setContentsMargins(0, 0, 0, 0)
+        self.user_field = user_field
 
         self.layout_user = QGridLayout()
-        self.layout_user.setContentsMargins(550, 60, 180, 230)
         self.layout_user.setSpacing(0)
         self.draw_field(self.layout_user)
-        self.setLayout(self.layout_user)
-
         self.layout_comp = QGridLayout()
-        self.layout_comp.setContentsMargins(20, 60, 500, 230)
         self.layout_comp.setSpacing(0)
         self.draw_field(self.layout_comp)
-        self.setLayout(self.layout_comp)
+        self.lay = QHBoxLayout(self)
+        self.lay.addLayout(self.layout_user)
+        self.lay.addLayout(self.layout_comp)
+        self.lay.setSpacing(100)
+        self.lay.setContentsMargins(100, 175, 100, 175)
+
+        self.show_ships(self.user_field.ships)
 
         self._retranslate_ui()
 
@@ -55,9 +58,18 @@ class Game(QtWidgets.QFrame):
         # lets.setGeometry(QtCore.QRect(565, 10, 500, 50))
         # lets.setFont(QtGui.QFont('Times', 26))
 
-    def back_menu_action(self):
-        self.main_window.change_window(0)
+    def show_ships(self, ships):
+        for i in ships:
+            ship = QtWidgets.QWidget(self)
+            if i.orientation == 0:
+                ship.setFixedSize(i.size * 45, 45)
+            else:
+                ship.setFixedSize(45, i.size * 45)
+            ship.move(QtCore.QPoint(100 + i.cell_location[0] * 45, 175 + i.cell_location[1] * 45))
+            ship.setStyleSheet('background-color: #FFFF00; border: 1px solid black;')
 
-    def dragMoveEvent(self, a0: QtGui.QDragMoveEvent) -> None:
-        pass
+
+    def back_menu_action(self):
+        self.main_window.change_window(1)
+
 

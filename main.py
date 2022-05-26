@@ -18,14 +18,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.stacked_widget.addWidget(Menu(self))
-        self.stacked_widget.addWidget(GamePreparing(self))
-        self.stacked_widget.addWidget(Game(self))
+        #self.stacked_widget.addWidget(GamePreparing(self))
+        #self.stacked_widget.addWidget(Game(self))
 
-    def change_window(self, number):
-        try:
-            self.stacked_widget.setCurrentIndex(number)
-        except Exception as e:
-            print(e)
+    def change_window(self, number, frame=None):
+        if frame:
+            self.stacked_widget.addWidget(frame)
+        self.stacked_widget.setCurrentIndex(number)
 
 
 if __name__ == "__main__":

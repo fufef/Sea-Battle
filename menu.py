@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication
+from game_preparing import GamePreparing
 
 
 
@@ -19,7 +20,7 @@ class Menu(QtWidgets.QFrame):
         self.start_btn.setGeometry(QtCore.QRect(450, 350, 300, 100))
         self.start_btn.setFont(font)
         self.start_btn.setObjectName("start_btn")
-        self.start_btn.clicked.connect(lambda: self.main_window.change_window(1))
+        self.start_btn.clicked.connect(lambda: self.main_window.change_window(1, GamePreparing(main_window)))
         self.start_btn.setStyleSheet(style)
 
 
