@@ -109,8 +109,5 @@ class GamePreparing(QtWidgets.QFrame):
         self.main_window.change_window(0)
 
     def start_game_action(self):
-
         self.main_window.change_window(2, Game(self.main_window, self.user_field))
 
-    def dragMoveEvent(self, a0: QtGui.QDragMoveEvent) -> None:
-        pass

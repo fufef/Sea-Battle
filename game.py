@@ -67,20 +67,7 @@ class Game(QtWidgets.QFrame):
 
             pic = QtWidgets.QLabel(self)
             if res == 'dead':
-                sh = self.enemy_field.field[loc[0]][loc[1]][0]
-                dx = 0
-                dy = 0
-                if sh.orientation == 0:
-                    dx = 1
-                else:
-                    dy = 1
-                for i in range(sh.size):
-                    pic = QtWidgets.QLabel(self)
-                    pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
-                    pic.setFixedSize(45, 45)
-                    pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
-                    pic.move(QtCore.QPoint(650 + 45 * (sh.cell_location[0] + dx * i), 175 + 45 * (sh.cell_location[1] + dy * i)))
-                    pic.show()
+                self.kill_ship(self.enemy_field, loc, (650, 175))
             else:
                 if res == 'past':
                     pic.setPixmap(QtGui.QPixmap('resources/mimo.png'))
@@ -121,6 +108,23 @@ class Game(QtWidgets.QFrame):
         #self.show_ships(field.ships, (100 + 450 + 100, 175))
         for i in field.ships:
             field.update_battlefield(i.cell_location, i)
+
+    def kill_ship(self, field, loc, offset):
+        sh = field.field[loc[0]][loc[1]][0]
+        dx = 0
+        dy = 0
+        if sh.orientation == 0:
+            dx = 1
+        else:
+            dy = 1
+        for i in range(sh.size):
+            pic = QtWidgets.QLabel(self)
+            pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
+            pic.setFixedSize(45, 45)
+            pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
+            pic.move(
+                QtCore.QPoint(offset[0] + 45 * (sh.cell_location[0] + dx * i), offset[1] + 45 * (sh.cell_location[1] + dy * i)))
+            pic.show()
 
     def choose(self, field: Field, s, le):
         r, o = self.rnd_choose(s)
@@ -183,22 +187,7 @@ class Game(QtWidgets.QFrame):
                     if 0 <= cell[0] + i < 10 and 0 <= cell[1] + j < 10:
                         self.user_field.field[cell[0] + i][cell[1] + j] = \
                             (self.user_field.field[cell[0] + i][cell[1] + j][0], True)
-            print(self.user_field.field[cell[0]][cell[1]])
-            sh = self.user_field.field[cell[0]][cell[1]][0]
-            dx = 0
-            dy = 0
-            if sh.orientation == 0:
-                dx = 1
-            else:
-                dy = 1
-            for i in range(sh.size):
-                pic = QtWidgets.QLabel(self)
-                pic.setPixmap(QtGui.QPixmap('resources/krov.png'))
-                pic.setFixedSize(45, 45)
-                pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
-                pic.move(
-                    QtCore.QPoint(100 + 45 * (sh.cell_location[0] + dx * i), 175 + 45 * (sh.cell_location[1] + dy * i)))
-                pic.show()
+            self.kill_ship(self.user_field, cell, (100, 175))
         else:
             pic = QtWidgets.QLabel(self)
             if res == 'past':
