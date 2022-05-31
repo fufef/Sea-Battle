@@ -41,6 +41,12 @@ class Game(QtWidgets.QFrame):
 
         self.is_all_at_sea = True
         self.prev_cell = (-1, -1)
+        self.f_injured = (-1, -1)
+        self.left_cell = (-1, -1)
+        self.right_cell = (-1, -1)
+        self.delta = (0, 0)
+        self.offsets = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+        self.hindex = 0
 
         self._retranslate_ui()
 
@@ -105,7 +111,7 @@ class Game(QtWidgets.QFrame):
             self.choose(field, s, 2)
         for i in range(4):
             self.choose(field, s, 1)
-        #self.show_ships(field.ships, (100 + 450 + 100, 175))
+        # self.show_ships(field.ships, (100 + 450 + 100, 175))
         for i in field.ships:
             field.update_battlefield(i.cell_location, i)
 
@@ -123,7 +129,8 @@ class Game(QtWidgets.QFrame):
             pic.setFixedSize(45, 45)
             pic.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
             pic.move(
-                QtCore.QPoint(offset[0] + 45 * (sh.cell_location[0] + dx * i), offset[1] + 45 * (sh.cell_location[1] + dy * i)))
+                QtCore.QPoint(offset[0] + 45 * (sh.cell_location[0] + dx * i),
+                              offset[1] + 45 * (sh.cell_location[1] + dy * i)))
             pic.show()
 
     def choose(self, field: Field, s, le):
@@ -164,21 +171,40 @@ class Game(QtWidgets.QFrame):
             print(cell)
             res = self.user_field.shoot(cell)
             if res == 'injured':
+                self.f_injured = cell
                 self.prev_cell = cell
+                self.hindex = 0
                 self.is_all_at_sea = False
+                self.delta = (1, 0)
         else:
-            for i in range(-1, 2):
-                for j in range(-1, 2):
-                    if abs(i + j) == 1 and 0 <= self.prev_cell[0] + i < 10 and 0 <= self.prev_cell[1] + j < 10 and not \
-                            self.user_field.field[self.prev_cell[0] + i][self.prev_cell[1] + j][1]:
-                        cell = (self.prev_cell[0] + i, self.prev_cell[1] + j)
+            if self.prev_cell == self.f_injured:
+                for i in range(len(self.offsets)):
+                    new_off = self.offsets[self.hindex]
+                    new_cell = (self.prev_cell[0] + new_off[0], self.prev_cell[1] + new_off[1])
+                    if 0 <= new_cell[0] < 10 and 0 <= new_cell[1] < 10 and not \
+                            self.user_field.field[new_cell[0]][new_cell[1]][1]:
+                        cell = new_cell
                         break
-                if cell == (-1, -1):
-                    continue
+
+                    self.hindex = (self.hindex + 1) % len(self.offsets)
+            else:
+                cell = (self.prev_cell[0] + self.offsets[self.hindex][0],
+                        self.prev_cell[1] + self.offsets[self.hindex][1])
+                if not(0 <= cell[0] < 10 and 0 <= cell[1] < 10 and not self.user_field.field[cell[0]][cell[1]][1]):
+                    self.hindex = (self.hindex + 2) % len(self.offsets)
+                    cell = (self.f_injured[0] + self.offsets[self.hindex][0],
+                            self.f_injured[1] + self.offsets[self.hindex][1])
+
             print('ха!', cell)
             res = self.user_field.shoot(cell)
-            self.prev_cell = cell
-            if res != 'injured':
+            if res == 'past':
+                if self.prev_cell == self.f_injured:
+                    self.hindex = (self.hindex + 1) % len(self.offsets)
+                else:
+                    self.hindex = (self.hindex + 2) % len(self.offsets)
+            elif res == 'injured':
+                self.prev_cell = cell
+            else:
                 self.is_all_at_sea = True
 
         if res == 'dead':
