@@ -8,6 +8,7 @@ from game import Game
 class GamePreparing(QtWidgets.QFrame):
     def __init__(self, main_window):
         super().__init__()
+        self.startPos = None
         self.screen_size = (main_window.size().width(), main_window.size().height())
         self.main_window = main_window
         self.backMenu_btn = QtWidgets.QPushButton(self)
@@ -24,10 +25,11 @@ class GamePreparing(QtWidgets.QFrame):
         self.start_btn.setFont(QtGui.QFont('Times', 22))
         self.start_btn.clicked.connect(self.start_game_action)
 
-        # self.clear_btn = QtWidgets.QPushButton(self)
-        # self.clear_btn.setGeometry(QtCore.QRect(640, 600, 100, 50))
-        # self.clear_btn.setObjectName("clear_btn")
-        # self.clear_btn.setFont(QtGui.QFont('Times', 22))
+        self.clear_btn = QtWidgets.QPushButton(self)
+        self.clear_btn.setGeometry(QtCore.QRect(640, 600, 100, 50))
+        self.clear_btn.setObjectName("clear_btn")
+        self.clear_btn.setFont(QtGui.QFont('Times', 22))
+        self.clear_btn.clicked.connect(self.clear_field)
 
         ships = QtWidgets.QLabel("ships:", self)
         ships.setGeometry(QtCore.QRect(80, 60, 100, 80))
@@ -52,7 +54,7 @@ class GamePreparing(QtWidgets.QFrame):
     def _retranslate_ui(self):
         _translate = QtCore.QCoreApplication.translate
         self.start_btn.setText(_translate("Preparing", "start"))
-        #self.clear_btn.setText(_translate("Preparing", "clear"))
+        self.clear_btn.setText(_translate("Preparing", "clear"))
 
     def draw_field(self):
         for row, rank in enumerate('1234567890'):
@@ -86,13 +88,26 @@ class GamePreparing(QtWidgets.QFrame):
         i.button.move(*i.location)
         i.button.installEventFilter(self)
 
+    def clear_field(self):
+        self.user_field.clear()
+        for i in self.ships:
+            if i.orientation != 0:
+                i.button.transform()
+            i.button.move(i.button.init_location)
+
     def eventFilter(self, source, event):
         if source in ([i.button for i in self.ships] + [None]):
+            ship = source.ship
+
             if event.type() == QtCore.QEvent.MouseButtonPress and event.button() == QtCore.Qt.LeftButton:
                 self.movingButton = source
                 self.startPos = event.pos()
+
             if event.type() == QtCore.QEvent.MouseButtonPress and event.button() == QtCore.Qt.RightButton:
-                if source.check_pos(source.pos(), 1 - source.ship.orientation):
+                if not source.check_pos(source.pos(), ship.orientation):
+                    source.transform()
+                elif source.check_pos(source.pos(), 1 - ship.orientation) and \
+                        self.user_field.is_possible_to_rotate(ship):
                     source.transform()
                     self.user_field.update_field(source.ship.cell_location, source.ship)
             elif event.type() == QtCore.QEvent.MouseMove and self.movingButton:
@@ -101,13 +116,24 @@ class GamePreparing(QtWidgets.QFrame):
                 self.movingButton.move(source.pos() + event.pos() - self.startPos)
                 self.movingButton.ship.location = self.movingButton.pos()
                 self.movingButton.ship_alignment()
-                self.user_field.update_field(self.movingButton.ship.cell_location, self.movingButton.ship)
+                if self.movingButton.check_pos(source.pos(), self.movingButton.ship.orientation):
+                    if self.user_field.is_allows(self.movingButton.ship):
+                        self.movingButton.move(self.movingButton.ship.location)
+                        self.user_field.update_field(self.movingButton.ship.cell_location, self.movingButton.ship)
+                    else:
+                        if self.movingButton.ship.orientation != 0:
+                            self.movingButton.transform()
+                        self.movingButton.move(self.movingButton.init_location)
+                        self.movingButton.ship.cell_location = (-1, -1)
+
                 self.movingButton = None
+                print(self.user_field.field)
         return super().eventFilter(source, event)
 
     def back_menu_action(self):
         self.main_window.change_window(0)
 
     def start_game_action(self):
+        self.user_field.delete_marks()
         self.main_window.change_window(2, Game(self.main_window, self.user_field))
 

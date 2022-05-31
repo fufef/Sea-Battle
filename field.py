@@ -9,6 +9,7 @@ class Field:
             if ship in self.ships:
                 old_start, old_orientation = self.ships[ship]
 
+                # TODO rewrite using ship.ship_span_cells
                 for i in range(ship.size):
                     if old_orientation == 0:
                         self.field[old_start[0] + i][old_start[1]] = (None, False)
@@ -16,11 +17,12 @@ class Field:
                         self.field[old_start[0]][old_start[1] + i] = (None, False)
 
             self.ships[ship] = (location, ship.orientation)
+            # TODO rewrite using ship.ship_span_cells
             for i in range(ship.size):
                 if ship.orientation == 0:
-                    self.field[location[0] + i][location[1]] = (ship, False)
+                    self.field[location[0] + i][location[1]] = (ship, True)
                 else:
-                    self.field[location[0]][location[1] + i] = (ship, False)
+                    self.field[location[0]][location[1] + i] = (ship, True)
 
     def update_battlefield(self, location, ship):
         if 0 <= location[0] <= self.size and 0 <= location[1] <= self.size:
@@ -30,10 +32,28 @@ class Field:
                 else:
                     self.field[location[0]][location[1] + i] = (ship, False)
 
-    def clear_field(self):
+    def is_allows(self, ship):
+        for i in self.ships:
+            if i != ship and all((j in (-1, 0, 1) for j in ship.distance_in_directions(i))):
+                return False
+
+        return True
+
+    def is_possible_to_rotate(self, ship):
+        ship.orientation = 1 - ship.orientation
+        result = self.is_allows(ship)
+        ship.orientation = 1 - ship.orientation
+        return result
+
+    def clear(self):
         for i in range(self.size):
             for j in range(self.size):
                 self.field[i][j] = (None, False)
+
+        for i in self.ships.keys():
+            i.cell_location = (-1, -1)
+
+        self.ships.clear()
 
     def shoot(self, location):
         cell = self.field[location[0]][location[1]][0]
@@ -52,3 +72,8 @@ class Field:
         self.field[location[0]][location[1]] = (cell, True)
         print('past')
         return 'past'
+
+    def delete_marks(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                self.field[i][j] = (self.field[i][j][0], False)
