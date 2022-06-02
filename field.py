@@ -5,6 +5,7 @@ class Field:
         self.ships = dict()
 
     def update_field(self, location, ship):
+        """Updates locations and orientations of user ships"""
         if 0 <= location[0] <= self.size and 0 <= location[1] <= self.size:
             if ship in self.ships:
                 old_start, old_orientation = self.ships[ship]
@@ -28,6 +29,7 @@ class Field:
             self.update_ship(ship.orientation, location, ship, ship, False)
 
     def is_allows(self, ship):
+        """Checks if it's possible to put a ship"""
         for i in self.ships:
             if i != ship and all((j in (-1, 0, 1) for j in ship.distance_in_directions(i))):
                 return False
@@ -35,12 +37,14 @@ class Field:
         return True
 
     def is_possible_to_rotate(self, ship):
+        """Checks if it's possible to rotate a ship"""
         ship.orientation = 1 - ship.orientation
         result = self.is_allows(ship)
         ship.orientation = 1 - ship.orientation
         return result
 
     def clear(self):
+        """Deletes all ships from battlefield"""
         for i in range(self.size):
             for j in range(self.size):
                 self.field[i][j] = (None, False)
@@ -51,6 +55,7 @@ class Field:
         self.ships.clear()
 
     def shoot(self, location):
+        """Shoots in cell and returns status of user action"""
         cell = self.field[location[0]][location[1]][0]
         if cell is not None:
             cell.status = 'injured'

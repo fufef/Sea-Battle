@@ -9,10 +9,12 @@ from random import randint
 class GameHelper:
     @classmethod
     def get_cell_coords(cls, pos: QtCore.QPoint):
+        """Get cell number (x and y) by coordinates"""
         return (pos.x() - 650) // 45, (pos.y() - 175) // 45
 
     @classmethod
     def choose(cls, field: Field, s, le):
+        """Choose place to put a ship"""
         r, o = GameHelper.rnd_choose(s)
         cells = [(r[0] + i, r[1] + j) for i in range((1 - o) * le + 1) for j in range(o * le + 1)]
         while not all((i in s and not s[i] for i in cells)):
@@ -31,6 +33,7 @@ class GameHelper:
 
     @classmethod
     def rnd_choose(cls, s):
+        """Choose random cell and returns it"""
         r = random.choice(tuple(s.keys()))
         while s[r]:
             r = random.choice(tuple(s.keys()))
@@ -138,6 +141,7 @@ class Game(QtWidgets.QFrame, GameHelper):
             ship.setStyleSheet('background-color: #FFFF00; border: 1px solid black;')
 
     def fill_field(self, field: Field):
+        """Fill AI battlefield"""
         s = {(i, j): False for i in range(field.size) for j in range(field.size)}
         GameHelper.choose(field, s, 4)
         for i in range(2):
@@ -151,6 +155,7 @@ class Game(QtWidgets.QFrame, GameHelper):
             field.update_battlefield(i.cell_location, i)
 
     def kill_ship(self, field, loc, offset):
+        """Deletes ship from battlefield"""
         sh = field.field[loc[0]][loc[1]][0]
         dx = 0
         dy = 0
@@ -168,8 +173,8 @@ class Game(QtWidgets.QFrame, GameHelper):
                               offset[1] + 45 * (sh.cell_location[1] + dy * i)))
             pic.show()
 
-
     def enemy_move(self):
+        """Enemy AI. Firstly shoot randomly, and the shoot to closest cells"""
         cell = (-1, -1)
         if self.is_all_at_sea:
             cell = (randint(0, 9), randint(0, 9))
@@ -197,7 +202,7 @@ class Game(QtWidgets.QFrame, GameHelper):
             else:
                 cell = (self.prev_cell[0] + self.offsets[self.hindex][0],
                         self.prev_cell[1] + self.offsets[self.hindex][1])
-                if not(0 <= cell[0] < 10 and 0 <= cell[1] < 10 and not self.user_field.field[cell[0]][cell[1]][1]):
+                if not (0 <= cell[0] < 10 and 0 <= cell[1] < 10 and not self.user_field.field[cell[0]][cell[1]][1]):
                     self.hindex = (self.hindex + 2) % len(self.offsets)
                     cell = (self.f_injured[0] + self.offsets[self.hindex][0],
                             self.f_injured[1] + self.offsets[self.hindex][1])
@@ -237,6 +242,7 @@ class Game(QtWidgets.QFrame, GameHelper):
         self.main_window.change_window(1)
 
     def check_end_game(self, field):
+        """Checks if user won or lose"""
         if all((i.status == 'dead' for i in field.ships)):
             if field == self.user_field:
                 self.complete_game("You lost(((")
@@ -244,6 +250,7 @@ class Game(QtWidgets.QFrame, GameHelper):
                 self.complete_game("You win!!!")
 
     def complete_game(self, text: str):
+        """Finishes the game"""
         r = QtWidgets.QFrame(self.main_window)
         l = QtWidgets.QLabel(r)
         l.setFont(QtGui.QFont("Times", 60))

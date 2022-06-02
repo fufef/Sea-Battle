@@ -89,6 +89,7 @@ class GamePreparing(QtWidgets.QFrame):
         i.button.installEventFilter(self)
 
     def clear_field(self):
+        """Deletes all ships from battlefield"""
         self.user_field.clear()
         for i in self.ships:
             if i.orientation != 0:

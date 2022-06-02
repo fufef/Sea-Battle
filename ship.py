@@ -15,6 +15,7 @@ class Ship:
 
     @property
     def ship_span_cells(self):
+        """Returns cells where other ships can't be placed"""
         for i in range(self.size):
             if self.orientation == 0:
                 yield self.cell_location[0] + i, self.cell_location[1]
@@ -22,6 +23,7 @@ class Ship:
                 yield self.cell_location[0], self.cell_location[1] + i
 
     def distance_in_directions(self, other):
+        """Returns distance to another ship in both dimensions"""
         if self.cell_location[0] < 0 or other.cell_location[0] < 0:
             return INFINITY, INFINITY
 
