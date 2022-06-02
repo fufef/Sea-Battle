@@ -6,7 +6,45 @@ from field import Field
 from random import randint
 
 
-class Game(QtWidgets.QFrame):
+class GameHelper:
+    @classmethod
+    def get_cell_coords(cls, pos: QtCore.QPoint):
+        return (pos.x() - 650) // 45, (pos.y() - 175) // 45
+
+    @classmethod
+    def choose(cls, field: Field, s, le):
+        r, o = GameHelper.rnd_choose(s)
+        cells = [(r[0] + i, r[1] + j) for i in range((1 - o) * le + 1) for j in range(o * le + 1)]
+        while not all((i in s and not s[i] for i in cells)):
+            r, o = GameHelper.rnd_choose(s)
+            cells = [(r[0] + i, r[1] + j) for i in range((1 - o) * le + 1) for j in range(o * le + 1)]
+
+        c = Ship(le, r, o)
+        c.cell_location = r
+        field.ships[c] = (c.location, c.orientation)
+        for i in cells:
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    x, y = i[0] + dx, i[1] + dy
+                    if 0 <= x < 10 and 0 <= y < 10:
+                        s[(x, y)] = True
+
+    @classmethod
+    def rnd_choose(cls, s):
+        r = random.choice(tuple(s.keys()))
+        while s[r]:
+            r = random.choice(tuple(s.keys()))
+        o = randint(0, 1)
+        return r, o
+
+    @classmethod
+    def check_pos(cls, location: QtCore.QPoint):
+        if 650 <= location.x() <= 1100 and 175 <= location.y() <= 175 + 450:
+            return True
+        return False
+
+
+class Game(QtWidgets.QFrame, GameHelper):
     def __init__(self, main_window, user_field: Field):
         super().__init__()
         self.screen_size = (main_window.size().width(), main_window.size().height())
@@ -67,7 +105,7 @@ class Game(QtWidgets.QFrame):
                 and self.check_pos(event.pos()):
             startPos = event.pos()
 
-            loc = self.get_cell_coords(startPos)
+            loc = GameHelper.get_cell_coords(startPos)
             print(loc)
             res = self.enemy_field.shoot(loc)
 
@@ -89,9 +127,6 @@ class Game(QtWidgets.QFrame):
 
         return super().eventFilter(source, event)
 
-    def get_cell_coords(self, pos: QtCore.QPoint):
-        return (pos.x() - 650) // 45, (pos.y() - 175) // 45
-
     def show_ships(self, ships, offset):
         for i in ships:
             ship = QtWidgets.QWidget(self)
@@ -104,13 +139,13 @@ class Game(QtWidgets.QFrame):
 
     def fill_field(self, field: Field):
         s = {(i, j): False for i in range(field.size) for j in range(field.size)}
-        self.choose(field, s, 4)
+        GameHelper.choose(field, s, 4)
         for i in range(2):
-            self.choose(field, s, 3)
+            GameHelper.choose(field, s, 3)
         for i in range(3):
-            self.choose(field, s, 2)
+            GameHelper.choose(field, s, 2)
         for i in range(4):
-            self.choose(field, s, 1)
+            GameHelper.choose(field, s, 1)
         # self.show_ships(field.ships, (100 + 450 + 100, 175))
         for i in field.ships:
             field.update_battlefield(i.cell_location, i)
@@ -133,34 +168,6 @@ class Game(QtWidgets.QFrame):
                               offset[1] + 45 * (sh.cell_location[1] + dy * i)))
             pic.show()
 
-    def choose(self, field: Field, s, le):
-        r, o = self.rnd_choose(s)
-        cells = [(r[0] + i, r[1] + j) for i in range((1 - o) * le + 1) for j in range(o * le + 1)]
-        while not all((i in s and not s[i] for i in cells)):
-            r, o = self.rnd_choose(s)
-            cells = [(r[0] + i, r[1] + j) for i in range((1 - o) * le + 1) for j in range(o * le + 1)]
-
-        c = Ship(le, r, o)
-        c.cell_location = r
-        field.ships[c] = (c.location, c.orientation)
-        for i in cells:
-            for dx in (-1, 0, 1):
-                for dy in (-1, 0, 1):
-                    x, y = i[0] + dx, i[1] + dy
-                    if 0 <= x < 10 and 0 <= y < 10:
-                        s[(x, y)] = True
-
-    def rnd_choose(self, s):
-        r = random.choice(tuple(s.keys()))
-        while s[r]:
-            r = random.choice(tuple(s.keys()))
-        o = randint(0, 1)
-        return r, o
-
-    def check_pos(self, location: QtCore.QPoint):
-        if 650 <= location.x() <= 1100 and 175 <= location.y() <= 175 + 450:
-            return True
-        return False
 
     def enemy_move(self):
         cell = (-1, -1)

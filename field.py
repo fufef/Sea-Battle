@@ -10,27 +10,22 @@ class Field:
                 old_start, old_orientation = self.ships[ship]
 
                 # TODO rewrite using ship.ship_span_cells
-                for i in range(ship.size):
-                    if old_orientation == 0:
-                        self.field[old_start[0] + i][old_start[1]] = (None, False)
-                    else:
-                        self.field[old_start[0]][old_start[1] + i] = (None, False)
+                self.update_ship(old_orientation, old_start, ship, None, False)
 
             self.ships[ship] = (location, ship.orientation)
             # TODO rewrite using ship.ship_span_cells
-            for i in range(ship.size):
-                if ship.orientation == 0:
-                    self.field[location[0] + i][location[1]] = (ship, True)
-                else:
-                    self.field[location[0]][location[1] + i] = (ship, True)
+            self.update_ship(ship.orientation, location, ship, ship, True)
+
+    def update_ship(self, old_orientation, old_start, old_ship, new_ship, new_ship_status):
+        for i in range(old_ship.size):
+            if old_orientation == 0:
+                self.field[old_start[0] + i][old_start[1]] = (new_ship, new_ship_status)
+            else:
+                self.field[old_start[0]][old_start[1] + i] = (new_ship, new_ship_status)
 
     def update_battlefield(self, location, ship):
         if 0 <= location[0] <= self.size and 0 <= location[1] <= self.size:
-            for i in range(ship.size):
-                if ship.orientation == 0:
-                    self.field[location[0] + i][location[1]] = (ship, False)
-                else:
-                    self.field[location[0]][location[1] + i] = (ship, False)
+            self.update_ship(ship.orientation, location, ship, ship, False)
 
     def is_allows(self, ship):
         for i in self.ships:
