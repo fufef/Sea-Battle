@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from ship import *
 from field import Field

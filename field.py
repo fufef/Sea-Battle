@@ -9,12 +9,9 @@ class Field:
         if 0 <= location[0] <= self.size and 0 <= location[1] <= self.size:
             if ship in self.ships:
                 old_start, old_orientation = self.ships[ship]
-
-                # TODO rewrite using ship.ship_span_cells
                 self.update_ship(old_orientation, old_start, ship, None, False)
 
             self.ships[ship] = (location, ship.orientation)
-            # TODO rewrite using ship.ship_span_cells
             self.update_ship(ship.orientation, location, ship, ship, True)
 
     def update_ship(self, old_orientation, old_start, old_ship, new_ship, new_ship_status):
